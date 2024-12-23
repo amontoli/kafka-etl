@@ -1,0 +1,77 @@
+version: '2'
+
+#networks:
+#    app-tier:
+#        driver: bridge
+
+services:
+    zookeeper:
+        image: 'confluentinc/cp-zookeeper:latest'
+        container_name: zookeeper
+        #        networks:
+        #            - app-tier
+        ports:
+            - "2181:2181"
+        environment:
+            - ZOOKEEPER_CLIENT_PORT=2181
+
+    kafka:
+        image: 'confluentinc/cp-kafka:latest'
+        container_name: kafka
+        depends_on: 
+            - zookeeper
+              #        networks:
+              #            - app-tier
+        ports:
+            - "9092:9092"
+        environment:
+            - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+            - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+            - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+            - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+            - KAFKA_LOG_RETENTION_HOURS=160 # Set kafka log retention period (1 week)
+            - KAFKA_DELETE_TOPIC_ENABLE=true 
+
+    influxdb:
+        image: 'influxdb:latest'
+        container_name: influxdb
+        ports:
+            - "8086:8086"
+              #        networks:
+              #            - app-tier
+        volumes:
+            - ./influxdb/influxdb2:/var/lib/influxdb2
+              #            - ./config/telegraf.conf:/telegraf.conf
+        environment:
+            - DOCKER_INFLUXDB_INIT_MODE=setup
+            - DOCKER_INFLUXDB_INIT_USERNAME=admin
+            - DOCKER_INFLUXDB_INIT_PASSWORD=administrator
+            - DOCKER_INFLUXDB_INIT_ORG=microsoft
+            - DOCKER_INFLUXDB_INIT_BUCKET=bucket_name
+            - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=aaaaa
+
+    telegraf:
+        image: 'telegraf:latest'
+        container_name: telegraf
+        restart: always
+        depends_on: 
+            - influxdb
+            - kafka
+              #        networks:
+              #            - app-tier
+        volumes:
+            - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+
+    python:
+        build: python
+        container_name: python
+        restart: on-failure
+        # Debugging volume, to be removed on production:
+        volumes:
+            - ./python:/home
+
+    grafana:
+        image: 'grafana/grafana:latest'
+        container_name: grafana
+        ports:
+            - "3000:3000"

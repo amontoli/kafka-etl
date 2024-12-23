@@ -1,0 +1,36 @@
+- Create and configure Kafka
+https://towardsdatascience.com/getting-started-with-apache-kafka-in-python-604b3250aa05
+https://betterdatascience.com/apache-kafka-in-python-how-to-stream-data-with-producers-and-consumers/
+
+Note: it is not recommended to add the cell as topic, as you have to configure them manually in Telegraf!
+
+- Configure Kafka network to interact with Telegraf
+https://stackoverflow.com/questions/52438822/docker-kafka-w-python-consumer/52440056#52440056
+https://rmoff.net/2018/08/02/kafka-listeners-explained/
+
+
+
+Create a influxDB database using influx setup in the docker container
+https://www.influxdata.com/blog/running-influxdb-2-0-and-telegraf-using-docker/
+
+
+- To delete data in the database, open a bash in the influxdb docker container and digit:
+influx delete --bucket bucket_name --start '2009-01-02T23:00:00Z' --stop '2029-01-02T23:00:00Z'
+
+- InfluxDB + Python
+https://www.influxdata.com/blog/getting-started-with-python-and-influxdb-v2-0/
+https://github.com/influxdata/influxdb-client-python
+
+- Python + Grafana
+https://community.grafana.com/t/invoking-python-script-from-dashboard/8051/4
+
+Use AJAX to send HTTP requests to Flask?
+-  https://grafana.com/grafana/plugins/ryantxu-ajax-panel/
+
+A useful read for configuring Kafka:
+- https://newrelic.com/blog/best-practices/kafka-best-practices
+
+
+First connection of Grafana to the database can be done manually via GUI. Remember to set http://influxdb:8086 as URL, to untoggle any auth buttons, and to set organisation and token in the InfluxDB details, in order to configure InfluxDB as a source for Grafana.
+
+The regex (?<!,),,(?!,) finds any pair of commas which are neither preceded nor followed by another comma (basically, it returns all couples of commas).
